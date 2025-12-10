@@ -1,32 +1,59 @@
-name: "Setup JFrog CLI Example"
-on: push
+name: Build and Publish with JFrog CLI
+
+on:
+  push:
+    branches: ["main"]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Setup JFrog CLI
-        uses: jfrog/setup-jfrog-cli@v4
-        env:
-          # JFrog platform url (for example: https://acme.jfrog.io)
-          JF_URL: ${{ vars.JF_URL }}
 
-          # JFrog Platform access token
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Install JFrog CLI
+      - name: Install JFrog CLI
+        uses: jfrog/setup-jfrog-cli@v4
+
+      # Configure JFrog CLI (access token)
+      - name: Configure JFrog CLI
+        run: |
+          jf config add myjf \
+            --url="$JF_URL" \
+            --access-token="$JF_ACCESS_TOKEN" \
+            --interactive=false
+        env:
+          JF_URL: ${{ secrets.JF_URL }}
           JF_ACCESS_TOKEN: ${{ secrets.JF_ACCESS_TOKEN }}
 
-          # Basic authentication credentials
-          ## JF_USER: ${{ secrets.JF_USER }}
-          ## JF_PASSWORD: ${{ secrets.JF_PASSWORD }}
-
-      - name: Run JFrog CLI
+      # Set build name and number
+      - name: Set build variables
         run: |
-          # Ping the server
-          jf rt ping
-          # Collect environment variables for the build
-          jf rt bce
-          # Collect VCS details from git and add them to the build
-          jf rt bag
-          # Publish build info
-          jf rt bp
+          export BUILD_NAME="gh-actions-build"
+          export BUILD_NUMBER="${{ github.run_number }}"
+          echo "BUILD_NAME=$BUILD_NAME" >> $GITHUB_ENV
+          echo "BUILD_NUMBER=$BUILD_NUMBER" >> $GITHUB_ENV
+
+      # Build or package your app (example using Maven)
+      - name: Maven build
+        run: mvn -B package
+
+      # Upload artifacts to JFrog
+      - name: Upload artifacts
+        run: |
+          jf rt u "target/*.jar" "$JF_REPO/" \
+              --build-name="$BUILD_NAME" \
+              --build-number="$BUILD_NUMBER"
+        env:
+          JF_REPO: ${{ secrets.JF_REPO }}
+
+      # Collect environment info for build-info
+      - name: Collect environment variables
+        run: |
+          jf rt bce "$BUILD_NAME" "$BUILD_NUMBER"
+
+      # Publish build-info to Artifactory
+      - name: Publish build info
+        run: |
+          jf rt bp "$BUILD_NAME" "$BUILD_NUMBER"
