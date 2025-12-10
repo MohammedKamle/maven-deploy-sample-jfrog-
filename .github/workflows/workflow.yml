@@ -22,7 +22,7 @@ jobs:
       - name: Install JFrog CLI
         uses: jfrog/setup-jfrog-cli@v4
 
-      # Configure JFrog CLI (access token)
+      # 1. Configure JFrog CLI Authentication
       - name: Configure JFrog CLI
         run: |
           jf config add myjf \
@@ -33,6 +33,20 @@ jobs:
           JF_URL: ${{ secrets.JF_URL }}
           JF_ACCESS_TOKEN: ${{ secrets.JF_ACCESS_TOKEN }}
 
+      # 2. Configure Maven Repositories (The Fix)
+      # This maps your Maven build to the specific Artifactory repository defined in secrets
+      - name: Configure Maven for JFrog
+        run: |
+          jf mvnc --global \
+            --server-id-resolve=myjf \
+            --server-id-deploy=myjf \
+            --repo-resolve-releases=$JF_REPO \
+            --repo-resolve-snapshots=$JF_REPO \
+            --repo-deploy-releases=$JF_REPO \
+            --repo-deploy-snapshots=$JF_REPO
+        env:
+          JF_REPO: ${{ secrets.JF_REPO }}
+
       # Set build name and number
       - name: Set build variables
         run: |
@@ -41,20 +55,16 @@ jobs:
           echo "BUILD_NAME=$BUILD_NAME" >> $GITHUB_ENV
           echo "BUILD_NUMBER=$BUILD_NUMBER" >> $GITHUB_ENV
 
-      # Build or package your app (example using Maven)
-      - name: Maven build
-        run: mvn -B package
-
-      # Upload artifacts to JFrog
-      - name: Upload artifacts
+      # 3. Maven Build & Deploy (Replaces 'mvn package' and 'jf rt u')
+      # 'jf mvn' wraps the standard maven command but intercepts the deploy phase
+      # to ensure artifacts go to the correct path in Artifactory.
+      - name: Maven Build and Deploy
         run: |
-          jf rt u "target/*.jar" "$JF_REPO/" \
-              --build-name="$BUILD_NAME" \
-              --build-number="$BUILD_NUMBER"
-        env:
-          JF_REPO: ${{ secrets.JF_REPO }}
+          jf mvn "clean deploy" \
+            --build-name="$BUILD_NAME" \
+            --build-number="$BUILD_NUMBER"
 
-      # Collect environment info for build-info
+      # Collect environment info for build-info (Optional, jf mvn usually captures this too)
       - name: Collect environment variables
         run: |
           jf rt bce "$BUILD_NAME" "$BUILD_NUMBER"
