@@ -32,6 +32,8 @@ public class Main {
         // connecting to the attacker's server.
         logger.info("User login attempt with username: {}", maliciousUsername);
 
+        logger.info("SAMPLE");
+
         System.out.println("--- Test Complete ---");
         System.out.println("If this were a real exploit, the application would now be attempting to connect to 'malicious.server.com' via LDAP.");
 
