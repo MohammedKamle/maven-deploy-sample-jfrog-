@@ -61,7 +61,7 @@ jobs:
       # to ensure artifacts go to the correct path in Artifactory.
       - name: Maven Build and Deploy
         run: |
-          jf mvn "clean deploy" \
+          jf mvn clean deploy \
             --build-name="$BUILD_NAME" \
             --build-number="$BUILD_NUMBER"
 
