@@ -1,0 +1,22 @@
+{
+  "app_name": "MySampleApp",
+  "version": "1.0.0",
+  "environment": "development",
+  "debug": true,
+  "database": {
+    "host": "localhost",
+    "port": 5432,
+    "username": "admin_user",
+    "password": "Mdjhjhd74676347!",
+    "db_name": "users_db"
+  },
+  "api_keys": {
+    "stripe_secret_key": "sk_test_4eC39HqLyjWDarjtT1zdp7dc",
+    "aws_access_key_id": "cbtfdgfhghd76476742BSHDSFHDASFH748723872348748BJAD",
+    "aws_secret_access_key": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+  },
+  "jwt": {
+    "secret": "BHBDHHDISA87364974326742367234697243",
+    "expires_in": "3600s"
+  }
+}
