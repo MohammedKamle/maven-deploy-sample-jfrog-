@@ -7,7 +7,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    environment: frogbot
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
