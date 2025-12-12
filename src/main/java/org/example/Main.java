@@ -34,6 +34,9 @@ public class Main {
 
         logger.info("SAMPLE");
 
+
+
+
         System.out.println("--- Test Complete ---");
         System.out.println("If this were a real exploit, the application would now be attempting to connect to 'malicious.server.com' via LDAP.");
 
