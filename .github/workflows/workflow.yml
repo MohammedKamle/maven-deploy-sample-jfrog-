@@ -3,11 +3,49 @@ name: Build and Publish with JFrog CLI
 on:
   push:
     branches: ["main"]
+  # 1. ADD PULL REQUEST TRIGGER HERE
+  pull_request:
+    branches: ["main"]
 
 jobs:
+  # NEW JOB: Dedicated Frogbot Scan job for PRs and Pushes
+  frogbot_scan:
+    runs-on: ubuntu-latest
+    environment: frogbot
+    # The 'if' condition is not strictly necessary here since the 'on' trigger
+    # already defines when this job runs, but it's good practice if you were
+    # using a single job for everything. Frogbot action is smart enough.
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        # Important: Fetch full history for accurate scanning, especially for PRs
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      # --- FROGBOT STEP (runs on push/pull_request to main) ---
+      - name: Run Frogbot Scan
+        uses: jfrog/frogbot@v2
+        env:
+          # The secrets you configured in Step 1
+          JF_URL: ${{ secrets.JF_URL }}
+          JF_ACCESS_TOKEN: ${{ secrets.JF_ACCESS_TOKEN }}
+          JF_GIT_TOKEN: ${{ secrets.JF_GIT_TOKEN }}
+      # --- END OF FROGBOT STEP ---
+
+  # ORIGINAL BUILD JOB: Only runs on 'push' to main
   build:
     runs-on: ubuntu-latest
     environment: frogbot
+    # Optional: Ensure the build job only runs after the scan passes (recommended)
+    needs: frogbot_scan
+    # The job inherits the 'push' trigger from the 'on' section, but PRs are now handled
+    # by 'frogbot_scan' job, which is then a prerequisite for this.
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -35,7 +73,6 @@ jobs:
           JF_ACCESS_TOKEN: ${{ secrets.JF_ACCESS_TOKEN }}
 
       # 2. Configure Maven Repositories (The Fix)
-      # This maps your Maven build to the specific Artifactory repository defined in secrets
       - name: Configure Maven for JFrog
         run: |
           jf mvnc --global \
@@ -48,20 +85,6 @@ jobs:
         env:
           JF_REPO: ${{ secrets.JF_REPO }}
 
-      # --- START OF ADDED FROGBOT STEP ---
-      - name: Run Frogbot Scan
-        uses: jfrog/frogbot@v2
-        env:
-          # The secrets you configured in Step 1
-          JF_URL: ${{ secrets.JF_URL }}
-          JF_ACCESS_TOKEN: ${{ secrets.JF_ACCESS_TOKEN }}
-          JF_GIT_TOKEN: ${{ secrets.JF_GIT_TOKEN }}
-
-          # Optional: If you want to specify a specific project or watch in Xray
-          # JF_PROJECT: "my-project-key"
-          # JF_WATCH: "my-watch-name"
-      # --- END OF ADDED FROGBOT STEP ---
-
       # Set build name and number
       - name: Set build variables
         run: |
@@ -70,16 +93,14 @@ jobs:
           echo "BUILD_NAME=$BUILD_NAME" >> $GITHUB_ENV
           echo "BUILD_NUMBER=$BUILD_NUMBER" >> $GITHUB_ENV
 
-      # 3. Maven Build & Deploy (Replaces 'mvn package' and 'jf rt u')
-      # 'jf mvn' wraps the standard maven command but intercepts the deploy phase
-      # to ensure artifacts go to the correct path in Artifactory.
+      # 3. Maven Build & Deploy
       - name: Maven Build and Deploy
         run: |
           jf mvn clean deploy \
             --build-name="$BUILD_NAME" \
             --build-number="$BUILD_NUMBER"
 
-      # Collect environment info for build-info (Optional, jf mvn usually captures this too)
+      # Collect environment info for build-info
       - name: Collect environment variables
         run: |
           jf rt bce "$BUILD_NAME" "$BUILD_NUMBER"
