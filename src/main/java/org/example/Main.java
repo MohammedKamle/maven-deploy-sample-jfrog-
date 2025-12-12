@@ -3,11 +3,14 @@ package org.example;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
     private static final Logger logger = (Logger) LogManager.getLogger(Main.class);
-    static void main() {
+    static void main() throws IOException, ClassNotFoundException {
         //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
         // to see how IntelliJ IDEA suggests fixing it.
 
@@ -42,5 +45,16 @@ public class Main {
             // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
 
         }
+
+        // DANGEROUS - Never do this
+        String userInput = "dbhdghagjhasgd";
+        Runtime.getRuntime().exec("cat " + userInput); // User could input "; rm -rf /"
+
+        // DANGEROUS
+        String query = "SELECT * FROM users WHERE name = '" + userInput + "'";
+
+
+
+
     }
 }
