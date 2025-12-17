@@ -11,9 +11,9 @@
     "db_name": "users_db"
   },
   "api_keys": {
-    "stripe_secret_key": "sk_test_4eC39HqLyjWDarjtT1zdp7dc",
-    "aws_access_key_id": "cmVmdGtuOjAxOjE3OTY3OTQ1MTU6VmR6eHdNUzdsWHFkb0ZxUmQ4MW16SXVBUjAy",
-    "aws_secret_access_key": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+    "stripe_secret_key": "pk_test_51HuExampleToken1234567890ABCDEFghijklmnOPQRstuvwxyz",
+    "gcp_access_key_id": "AIzaSyD-ExampleRandomString1234567890",
+    "gcp_secret_access_key": "wKolrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
   },
   "jwt": {
     "secret": "cmVmdGtuOjAxOjE3OTY3MTMzOTE6UUs1a2gxRTUzWmEzSVd3czVvVGplSjkxZ1hX",
