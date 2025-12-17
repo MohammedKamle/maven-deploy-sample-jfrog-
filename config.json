@@ -10,13 +10,12 @@
     "password": "Mdjhjhd74676347!",
     "db_name": "users_db"
   },
-  "api_keys": {
-    "stripe_secret_key": "sk_test_4eC39HqLyjWDarjtT1zdp7dc",
-    "aws_access_key_id": "cmVmdGtuOjAxOjE3OTY3OTQ1MTU6VmR6eHdNUzdsWHFkb0ZxUmQ4MW16SXVBUjAy",
-    "aws_secret_access_key": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
-  },
   "jwt": {
     "secret": "cmVmdGtuOjAxOjE3OTY3MTMzOTE6UUs1a2gxRTUzWmEzSVd3czVvVGplSjkxZ1hX",
     "expires_in": "3600s"
+  },
+
+  "azure_keys": {
+    "secret": "cmVmdGfdfjdfktuOjAxOjE3OTY3MTMzOTE6UUs1a2gxRTUzWmEzSVd3czVvVGplSjkxZ1hX"
   }
 }
